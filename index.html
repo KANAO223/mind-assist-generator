@@ -198,9 +198,7 @@
           var data = await res.json();
           var count = (data && data.count != null) ? String(data.count) : "0";
           var t = document.querySelector("#gcTop");
-          var m = document.querySelector("#gcMain");
           if(t) t.textContent = count;
-          if(m) m.textContent = count;
         }catch(e){
           // 失敗しても黙って "—" のままにする
         }
