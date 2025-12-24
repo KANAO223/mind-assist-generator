@@ -51,6 +51,7 @@
       </div>
     </section>
 
+    
     <section class="card hidden" id="cardQuiz">
       <div class="bd">
         <div class="row" style="justify-content:space-between; align-items:flex-end;">
@@ -59,13 +60,12 @@
             <p class="hint">すべて選択式です。選択肢にない場合は「その他」を選び、自由記述してください。</p>
             <p class="hint"><b>あなたを理解するために、以下の24問にすべて回答ください。</b></p>
           </div>
-          <div class="row" style="align-items:center;">
-            <span class="badge" id="progressBadge">0 / 0</span>
-            <span class="badge counterBadge">
-              <span class="counterLabel">アクセス</span>
-              <span id="gcMain" class="counterValue">—</span>
-            </span>
-          </div>
+          <span class="badge" id="progressBadge">0 / 24</span>
+        </div>
+
+        <div class="stepbar">
+          <div class="stepTitle" id="stepTitle">ステップ 1 / 6</div>
+          <div class="stepDots" id="stepDots" aria-hidden="true"></div>
         </div>
 
         <details class="howto" open>
@@ -95,6 +95,14 @@
           </div>
         </details>
 
+        <div class="missingBox" id="missingBox">
+          <div class="missingHeader">
+            <b style="font-size:13px;">未回答の設問</b>
+            <span class="hint" id="missingMeta">—</span>
+          </div>
+          <div class="missingList" id="missingList"></div>
+        </div>
+
         <div class="hr"></div>
 
         <div id="quizHost"></div>
@@ -102,9 +110,14 @@
         <div class="hr" style="margin-top:14px;"></div>
 
         <div class="row" style="justify-content:space-between;">
-          <button class="btn" id="btnBack">ログイン画面へ</button>
           <div class="row">
+            <button class="btn" id="btnBack">ログイン画面へ</button>
+            <button class="btn" id="btnSample">サンプル入力</button>
             <button class="btn" id="btnResetAllInline" title="入力と結果をリセット">リセット</button>
+          </div>
+          <div class="row">
+            <button class="btn" id="btnPrevStep">前へ</button>
+            <button class="btn" id="btnNextStep">次へ</button>
             <button class="btn" id="btnSaveDraft">下書き保存</button>
             <button class="btn primary" id="btnGenerate">生成</button>
           </div>
@@ -113,41 +126,25 @@
       </div>
     </section>
 
+
+    
     <section class="card hidden" id="cardOutput">
       <div class="bd">
         <div class="row" style="justify-content:space-between; align-items:flex-end;">
           <div>
             <h2 class="cardTitle">Copilot 用：カスタム指示</h2>
             <p class="hint">下のテキストを Copilot の「カスタム指示」に貼り付けてください。</p>
-            <details class="howto" style="margin-top:10px;">
-              <summary>Copilotに「カスタム指示」を設定する / 元に戻す</summary>
-              <div class="howtoBody">
-                <div class="grid2">
-                  <div class="panel">
-                    <h3 class="panelTitle">設定する（貼り付ける）</h3>
-                    <ol class="bullets">
-                      <li>Copilot Chat を開く</li>
-                      <li>右上の <b>設定</b> を開く</li>
-                      <li><b>Personalization（個人用設定）</b> を選ぶ</li>
-                      <li><b>Custom instructions（カスタム指示）</b> を開き、生成した文章を貼り付ける</li>
-                      <li><b>オン</b>にして保存（または適用）</li>
-                    </ol>
-                    <p class="hint">UIや名称はMicrosoft側の更新で変わることがあります。</p>
-                  </div>
-                  <div class="panel">
-                    <h3 class="panelTitle">元に戻す（無効化する）</h3>
-                    <ul class="bullets">
-                      <li>同じ画面で <b>Custom instructions をオフ</b> にする</li>
-                      <li>または、指示文を消して空にして保存</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </details>
           </div>
           <div class="row">
-            <button class="btn" id="btnBackToQuiz">質問へ戻る</button>
+            <button class="btn" id="btnBackToQuiz">質問に戻る</button>
             <button class="btn" id="btnResetAllFromOut" title="入力と結果をリセット">リセット</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:10px;">
+          <h3 class="panelTitle" style="margin-bottom:6px;">モードの説明</h3>
+          <div class="hint" style="margin:0;">
+            <b>General</b>＝整理と結論のバランス / <b>Judge</b>＝審査（リスク・反証） / <b>Editor</b>＝編集（構成・表現） / <b>Advisor</b>＝参謀（次の一手）
           </div>
         </div>
 
@@ -157,13 +154,40 @@
           <button class="tab" data-mode="editor" role="tab">Editor</button>
           <button class="tab" data-mode="advisor" role="tab">Advisor</button>
         </div>
-        <div class="hint" style="margin-top:6px;">
+
         <div class="panel" style="margin-top:10px;">
-          <h3 class="panelTitle" style="margin-bottom:6px;">モードの説明</h3>
-          <div class="hint" style="margin:0;">
-            <b>General</b>＝整理と結論のバランス / <b>Judge</b>＝審査（リスク・反証） / <b>Editor</b>＝編集（構成・表現） / <b>Advisor</b>＝参謀（次の一手）
+          <h3 class="panelTitle" style="margin-bottom:10px;">最終調整（任意）</h3>
+          <div class="prefsGrid">
+            <label class="switchRow">
+              <input type="checkbox" id="prefSuperBrief" />
+              <div class="switchText">
+                <b>短め（要点優先）</b>
+                <span>長文を避け、結論・要点をコンパクトに。</span>
+              </div>
+            </label>
+            <label class="switchRow">
+              <input type="checkbox" id="prefStrictRisk" />
+              <div class="switchText">
+                <b>厳しめ（リスク先出し）</b>
+                <span>重大リスクを先に提示し、回避策/確認事項をセットで。</span>
+              </div>
+            </label>
+            <label class="switchRow">
+              <input type="checkbox" id="prefConclusionFirst" />
+              <div class="switchText">
+                <b>結論ファーストを徹底</b>
+                <span>冒頭で判断/提案を先に。根拠は後段で。</span>
+              </div>
+            </label>
+            <label class="switchRow">
+              <input type="checkbox" id="prefAskBack" />
+              <div class="switchText">
+                <b>不足情報は質問で確認</b>
+                <span>不明点があるとき、先に確認質問を最大3つだけ返す。</span>
+              </div>
+            </label>
           </div>
-        </div>
+          <p class="hint" style="margin-top:10px;">※ここで選んだ内容は、生成される「カスタム指示」に反映されます。</p>
         </div>
 
         <textarea id="outText" spellcheck="false"></textarea>
@@ -175,8 +199,52 @@
             <a class="btn primary" id="btnOpenCopilot" href="#" target="_blank" rel="noreferrer">Copilotを開く</a>
           </div>
         </div>
+
+        <div class="panel" style="margin-top:10px;">
+          <h3 class="panelTitle" style="margin-bottom:6px;">このあと（貼り付け手順）</h3>
+          <div class="hint" style="margin:0 0 10px;">
+            「コピー」→ Copilot の「カスタム指示」に貼り付け → 有効化、までをここで案内します。
+          </div>
+          <div class="howto">
+            <div class="howtoHeader">Copilotの「カスタム指示」を設定方法 / 元への戻し方</div>
+            <div class="howtoBody">
+              <div class="grid2">
+                <div class="panel">
+                  <h3 class="panelTitle">設定する（貼り付ける）</h3>
+                  <ol class="bullets">
+                    <li>Copilot Chat を開く</li>
+                    <li>右上の <b>設定</b> を開く</li>
+                    <li><b>Personalization（個人用設定）</b> を選ぶ</li>
+                    <li><b>Custom instructions（カスタム指示）</b> を開き、生成した文章を貼り付ける</li>
+                    <li><b>オン</b>にして保存（または適用）</li>
+                  </ol>
+                  <p class="hint">UIや名称はMicrosoft側の更新で変わることがあります。</p>
+                </div>
+                <div class="panel">
+                  <h3 class="panelTitle">元に戻す（無効化する）</h3>
+                  <ul class="bullets">
+                    <li>同じ画面で <b>Custom instructions をオフ</b> にする</li>
+                    <li>または、指示文を消して空にして保存</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="copiedPanel" style="margin-top:10px; display:none;">
+          <h3 class="panelTitle" style="margin-bottom:6px;">コピーしました</h3>
+          <div class="hint" style="margin:0;">
+            次に、Copilot の「カスタム指示」画面を開いて貼り付けてください。
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <a class="btn primary" href="https://copilot.microsoft.com/" target="_blank" rel="noreferrer">Copilotを開く</a>
+          </div>
+        </div>
+
       </div>
     </section>
+
   </div>
 
   <script src="./questions.js"></script>
@@ -192,10 +260,8 @@
           async src="//gc.zgo.at/count.js"></script>
   <script>
     (function(){
-      // 数字だけ表示（"Views for this page" 等の大きいウィジェットは使いません）
       async function fillCounts(){
         try{
-          // GoatCounterのUIと一致するパス（推奨）
           var path = (window.goatcounter && window.goatcounter.get_data) ? window.goatcounter.get_data()['p'] : location.pathname;
           var url = "https://mindassist.goatcounter.com/counter/" + encodeURIComponent(path) + ".json";
           var res = await fetch(url, {cache: "no-store"});
@@ -204,12 +270,8 @@
           var count = (data && data.count != null) ? String(data.count) : "0";
           var t = document.querySelector("#gcTop");
           if(t) t.textContent = count;
-        }catch(e){
-          // 失敗しても黙って "—" のままにする
-        }
+        }catch(e){}
       }
-
-      // count.jsが読み込まれるまで少し待ってから取得
       var tries = 0;
       var timer = setInterval(function(){
         tries++;
@@ -217,7 +279,7 @@
           clearInterval(timer);
           fillCounts();
         }
-        if(tries > 80){ // 8秒程度
+        if(tries > 80){
           clearInterval(timer);
           fillCounts();
         }

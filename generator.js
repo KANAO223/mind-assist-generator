@@ -3,7 +3,7 @@
 (function(){
   function uniq(arr){ return Array.from(new Set((arr||[]).filter(Boolean))); }
   function joinCompact(arr){ const u = uniq(arr); return u.length ? u.join(" / ") : "（未指定）"; }
-  function sanitizeOtherText(t){ if(!t) return ""; return String(t).replace(/\s+/g," ").trim().slice(0, 120); }
+  function sanitizeOtherText(t){ if(!t) return ""; return String(t).replace(/\s+/g," ").trim().slice(0, 160); }
   function pickOther(answerObj){
     if(!answerObj) return "";
     const t = sanitizeOtherText(answerObj.other_text);
@@ -21,6 +21,11 @@
     const o = pickOther(a);
     return o ? `${base} ${o}` : base;
   }
+
+  function prefs(profile){
+    return (profile && profile._prefs) ? profile._prefs : {};
+  }
+
   function modeHeader(mode){
     switch(mode){
       case "judge": return "【Judge｜審査官モード】";
@@ -35,14 +40,32 @@
     if(mode==="advisor") return "目的：次の打ち手を前に進める（最小実験・論点・次アクション）。";
     return "目的：あなたの判断基準に沿って、情報整理→考察→次アクションまで一貫して支援。";
   }
+
   function emphasizeRules(profile, mode){
+    const p = prefs(profile);
     const lines = [];
     lines.push("禁止：根拠のない断定、推測の事実化、機密/個人情報の深掘り要求。");
+
     const amb = valStr(profile, "ambiguity");
     if(amb.includes("確度")) lines.push("推定する場合は「前提」と「確度（高/中/低）」を必ず付ける。");
     else if(amb.includes("前提")) lines.push("推定する場合は「前提」を必ず明記する。");
     else if(amb.includes("避ける")) lines.push("推定は極力避け、事実と不明点を分けて書く。");
     else if(amb.includes("断定")) lines.push("スピード優先で結論を先に出し、根拠不足は不足情報として明示する。");
+
+    if(p.strictRisk){
+      lines.push("リスクを優先：重大リスクは先出しし、回避策/確認事項をセットで提示する。");
+    }
+    if(p.superBrief){
+      lines.push("短さ優先：まず結論を1〜3行に圧縮し、詳細は必要時のみ。");
+      lines.push("出力は原則 600〜900字程度を目安（超える場合は要点→詳細の順）。");
+    }
+    if(p.conclusionFirst){
+      lines.push("必ず冒頭で結論（提案/判断）を提示してから根拠を書く。");
+    }
+    if(p.askBack){
+      lines.push("不足情報がある場合は、先に確認質問を最大3つだけ返す（短く）。");
+    }
+
     if(mode==="judge"){
       lines.push("最初にNO-GO（即アウト）条件を照合し、該当があれば明確に指摘する。");
       lines.push("次に反証（失敗の最初の壊れ方）を3つ挙げ、回避策/確認事項を示す。");
@@ -58,6 +81,7 @@
     }
     return lines;
   }
+
   function outputFormat(profile, mode){
     const base = valStr(profile, "outputBase");
     const len = valStr(profile, "conclusionLen");
@@ -73,9 +97,9 @@
     lines.push(`トーン：${tone}`);
     lines.push(`書式ルール：${fmt}`);
     if(mode==="editor" && !fmt.includes("表")) lines.push("可能なら「比較表」または「見出し＋箇条書き」で構造化する。");
-    if(fmt.includes("800字")) lines.push("長文化する場合は、まず短い要約を出してから詳細を続ける。");
     return lines;
   }
+
   function decisionRubric(profile, mode){
     const axes = valStr(profile, "evalAxes");
     const rank = valStr(profile, "evalRank");
@@ -97,6 +121,7 @@
     if(mode==="judge") lines.unshift("判断は保守的に：重大リスクが残る場合は「保留＋追加確認」を推奨してよい。");
     return lines;
   }
+
   function personaContext(profile){
     const role = valStr(profile, "roleType");
     const aud = valStr(profile, "audiences");
@@ -116,12 +141,26 @@
       `この会話での目的：${goal}`,
     ];
   }
+
   function dontDoList(profile){ return [`追加の禁止事項（私の嗜好）：${valStr(profile, "dontDo")}`]; }
+
+  function prefsBlock(profile){
+    const p = prefs(profile);
+    const list = [];
+    if(p.superBrief) list.push("短め（要点優先）");
+    if(p.strictRisk) list.push("厳しめ（リスク先出し）");
+    if(p.conclusionFirst) list.push("結論ファースト");
+    if(p.askBack) list.push("不足情報は質問で確認");
+    if(!list.length) return [];
+    return ["■ 最終調整（このツールで指定）", `- ${list.join(" / ")}`,""];
+  }
+
   function build(profile, mode){
     const lines = [];
     lines.push(modeHeader(mode));
     lines.push(modePurpose(mode));
     lines.push("");
+    lines.push(...prefsBlock(profile));
     lines.push("■ 前提（私について）");
     lines.push(...personaContext(profile));
     lines.push("");
@@ -141,5 +180,8 @@
     lines.push("- 不足情報（1つだけ）と、その理由");
     return lines.join("\n");
   }
-  window.MAG_generateInstructions = function(profile, mode){ return build(profile, mode || "general"); };
+
+  window.MAG_generateInstructions = function(profile, mode){
+    return build(profile || {}, mode || "general");
+  };
 })();
