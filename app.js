@@ -2,15 +2,13 @@
 // - 利用コードログイン
 // - 質問レンダリング（全問：その他=自由記述）
 // - ローカル生成（API不使用）
-
 (function(){
   const STORAGE_KEY = "MAG_DRAFT_V1";
   const LOGIN_KEY = "MAG_LOGIN_OK_V1";
 
   // ✅ 利用コード（PoC用）: ここに配布コードを列挙してください
-  // 例）["AB12CD34","EF56GH78"]
   const VALID_CODES = [
-    "DEMO1234"
+    "OXUC"
   ];
 
   const el = (id) => document.getElementById(id);
@@ -43,9 +41,7 @@
   let currentMode = "general";
   let profile = {}; // answers map
 
-  function show(elm, on){
-    elm.classList.toggle("hidden", !on);
-  }
+  function show(elm, on){ elm.classList.toggle("hidden", !on); }
 
   function isValidCode(code){
     const c = (code || "").trim();
@@ -53,23 +49,15 @@
     return VALID_CODES.includes(c);
   }
 
-  function setLogin(ok){
-    localStorage.setItem(LOGIN_KEY, ok ? "1" : "0");
-  }
-  function getLogin(){
-    return localStorage.getItem(LOGIN_KEY) === "1";
+  function setLogin(ok){ localStorage.setItem(LOGIN_KEY, ok ? "1" : "0"); }
+  function getLogin(){ return localStorage.getItem(LOGIN_KEY) === "1"; }
+
+  function saveDraft(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(profile)); }
+  function loadDraft(){
+    try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return null; return JSON.parse(raw); }
+    catch(e){ return null; }
   }
 
-  function saveDraft(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-  }
-  function loadDraft(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return null;
-      return JSON.parse(raw);
-    }catch(e){ return null; }
-  }
   function resetAll(){
     if(!confirm("入力内容と結果をすべてリセットします。よろしいですか？")) return;
     localStorage.removeItem(STORAGE_KEY);
@@ -89,10 +77,7 @@
     window.scrollTo({top:0, behavior:"smooth"});
   }
 
-  function initCopilotLink(){
-    // Copilot Chat: URLは環境により変わる可能性があります。M365のCopilot Chatを使う方が多い前提で。
-    btnOpenCopilot.href = "https://copilot.microsoft.com/";
-  }
+  function initCopilotLink(){ btnOpenCopilot.href = "https://copilot.microsoft.com/"; }
 
   function qTemplate(q){
     const wrap = document.createElement("div");
@@ -109,7 +94,7 @@
 
     const name = "q_" + q.id;
 
-    q.options.forEach((opt, idx) => {
+    q.options.forEach((opt) => {
       const row = document.createElement("label");
       row.className = "optRow";
 
@@ -130,7 +115,6 @@
 
     wrap.appendChild(list);
 
-    // other text box (always present but shown when selected)
     const other = document.createElement("div");
     other.className = "otherBox hidden";
     other.innerHTML = `
@@ -141,23 +125,17 @@
     wrap.appendChild(other);
 
     other.querySelector("input").addEventListener("input", () => onAnswerChanged(q.id));
-
     return wrap;
   }
 
   function renderQuestions(){
     quizHost.innerHTML = "";
-    window.MAG_QUESTIONS.forEach(q => {
-      quizHost.appendChild(qTemplate(q));
-    });
-    // restore selections from profile
+    window.MAG_QUESTIONS.forEach(q => { quizHost.appendChild(qTemplate(q)); });
     hydrateUIFromProfile();
     updateProgress();
   }
 
-  function getQById(id){
-    return window.MAG_QUESTIONS.find(x => x.id === id);
-  }
+  function getQById(id){ return window.MAG_QUESTIONS.find(x => x.id === id); }
 
   function onAnswerChanged(qid){
     const q = getQById(qid);
@@ -169,24 +147,14 @@
     const otherInput = otherWrap.querySelector("input[type=text]");
 
     let selected;
-    if(q.type === "multi"){
-      selected = inputs.filter(i => i.checked).map(i => i.value);
-    }else{
-      selected = (inputs.find(i => i.checked)?.value) || "";
-    }
+    if(q.type === "multi") selected = inputs.filter(i => i.checked).map(i => i.value);
+    else selected = (inputs.find(i => i.checked)?.value) || "";
 
-    // show/hide other box
     const hasOther = (q.type === "multi") ? (selected.includes("その他")) : (selected === "その他");
     otherWrap.classList.toggle("hidden", !hasOther);
 
     const otherText = hasOther ? otherInput.value.trim() : "";
-    const answer = {
-      type: q.type,
-      selected: selected,
-      other_text: otherText
-    };
-
-    profile[qid] = answer;
+    profile[qid] = { type: q.type, selected: selected, other_text: otherText };
     updateProgress();
   }
 
@@ -210,11 +178,7 @@
 
       const hasOther = (q.type === "multi") ? (Array.isArray(a.selected) && a.selected.includes("その他")) : (a.selected === "その他");
       otherWrap.classList.toggle("hidden", !hasOther);
-      if(hasOther){
-        otherInput.value = a.other_text || "";
-      }else{
-        otherInput.value = "";
-      }
+      otherInput.value = hasOther ? (a.other_text || "") : "";
     });
   }
 
@@ -224,7 +188,6 @@
     if(q.type === "multi"){
       const sel = Array.isArray(a.selected) ? a.selected : [];
       if(sel.length === 0) return false;
-      // if other selected then require text
       if(sel.includes("その他") && !(a.other_text||"").trim()) return false;
       return true;
     }else{
@@ -256,12 +219,8 @@
     return true;
   }
 
-  function generateForMode(mode){
-    return window.MAG_generateInstructions(profile, mode);
-  }
-
   function renderOutput(){
-    const txt = generateForMode(currentMode);
+    const txt = window.MAG_generateInstructions(profile, currentMode);
     outText.value = txt;
     outMeta.textContent = `文字数：${txt.length}`;
   }
@@ -272,7 +231,7 @@
     renderOutput();
   }
 
-  // --- Events ---
+  // Events
   btnLogin.addEventListener("click", () => {
     loginMsg.textContent = "";
     loginMsg.style.color = "";
@@ -296,7 +255,6 @@
   });
 
   btnBack.addEventListener("click", () => {
-    // back to login card
     show(cardQuiz, false);
     show(cardOutput, false);
     show(cardLogin, true);
@@ -335,16 +293,12 @@
     }
   });
 
-  tabs.forEach(t => {
-    t.addEventListener("click", () => setMode(t.dataset.mode));
-  });
-
+  tabs.forEach(t => { t.addEventListener("click", () => setMode(t.dataset.mode)); });
   btnResetAll.addEventListener("click", resetAll);
 
-  // --- Init ---
+  // Init
   (function boot(){
     initCopilotLink();
-
     const draft = loadDraft();
     if(draft) profile = draft;
 
