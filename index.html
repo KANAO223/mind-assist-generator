@@ -17,45 +17,13 @@
           <p>あなたの判断基準に合わせて、Copilotを情報整理・考察の相棒に最適化します</p>
         </div>
       </div>
-      <div class="row">
-        <span class="badge">PoC</span>
-        <button class="btn" id="btnResetAll" title="入力と結果をリセット">リセット</button>
-      </div>
-    </header>
-
-    <section class="card">
-      <div class="bd">
-        <h2 class="cardTitle">使い方</h2>
-        <div class="grid2">
-          <div class="panel">
-            <h3 class="panelTitle">① このツールでやること</h3>
-            <ul class="bullets">
-              <li>質問に答える → あなたの「判断の型」を抽出</li>
-              <li>Copilotの <b>カスタム指示</b> に貼る文章（プロンプト）を生成</li>
-              <li>用途別に <b>General / Judge / Editor / Advisor</b> を切替</li>
-            </ul>
-            <p class="hint">※機密情報・個人情報は入力しないでください。出力は必ず内容確認のうえ利用してください。</p>
-          </div>
-
-          <div class="panel">
-            <h3 class="panelTitle">② Copilotに「カスタム指示」を設定する</h3>
-            <ol class="bullets">
-              <li>Copilot Chat を開く</li>
-              <li>右上の <b>設定</b> を開く</li>
-              <li><b>Personalization（個人用設定）</b> を選ぶ</li>
-              <li><b>Custom instructions（カスタム指示）</b> を開き、生成した文章を貼り付ける</li>
-              <li><b>オン</b>にして保存（または適用）</li>
-            </ol>
-            <h3 class="panelTitle" style="margin-top:12px;">③ 元に戻す（無効化する）</h3>
-            <ul class="bullets">
-              <li>同じ画面で <b>Custom instructions をオフ</b> にする</li>
-              <li>または、指示文を消して空にして保存</li>
-            </ul>
-            <p class="hint">UIや名称はMicrosoft側の更新で変わることがあります。</p>
-          </div>
+      <div class="topRight">
+        <div class="counterLine" id="counterTopLine">
+          <span class="counterLabel">アクセス</span>
+          <span id="gcTop" class="counterValue">—</span>
         </div>
       </div>
-    </section>
+    </header>
 
     <section class="card" id="cardLogin">
       <div class="bd">
@@ -76,7 +44,7 @@
 
         <label for="accessCode">利用コード</label>
         <div class="row">
-          <input id="accessCode" placeholder="例）OXUC" autocomplete="off" />
+          <input id="accessCode" placeholder="利用コードを入力" autocomplete="off" inputmode="latin" />
           <button class="btn primary" id="btnLogin">同意して開始</button>
         </div>
         <p class="hint" id="loginMsg"></p>
@@ -87,11 +55,51 @@
       <div class="bd">
         <div class="row" style="justify-content:space-between; align-items:flex-end;">
           <div>
-            <h2 class="cardTitle">質問診断</h2>
+            <h2 class="cardTitle">MAIN</h2>
             <p class="hint">すべて選択式です。選択肢にない場合は「その他」を選び、自由記述してください。</p>
           </div>
-          <span class="badge" id="progressBadge">0 / 0</span>
+          <div class="row" style="align-items:center;">
+            <span class="badge" id="progressBadge">0 / 0</span>
+            <span class="badge counterBadge">
+              <span class="counterLabel">アクセス</span>
+              <span id="gcMain" class="counterValue">—</span>
+            </span>
+          </div>
         </div>
+
+        <details class="howto" open>
+          <summary>使い方（Copilotへ貼り付けるまで）</summary>
+          <div class="howtoBody">
+            <div class="grid2">
+              <div class="panel">
+                <h3 class="panelTitle">① このツールでやること</h3>
+                <ul class="bullets">
+                  <li>質問に答える → あなたの「判断の型」を抽出</li>
+                  <li>Copilotの <b>カスタム指示</b> に貼る文章（プロンプト）を生成</li>
+                  <li>用途別に <b>General / Judge / Editor / Advisor</b> を切替</li>
+                </ul>
+                <p class="hint">※機密情報・個人情報は入力しないでください。出力は必ず内容確認のうえ利用してください。</p>
+              </div>
+
+              <div class="panel">
+                <h3 class="panelTitle">② Copilotに「カスタム指示」を設定する</h3>
+                <ol class="bullets">
+                  <li>Copilot Chat を開く</li>
+                  <li>右上の <b>設定</b> を開く</li>
+                  <li><b>Personalization（個人用設定）</b> を選ぶ</li>
+                  <li><b>Custom instructions（カスタム指示）</b> を開き、生成した文章を貼り付ける</li>
+                  <li><b>オン</b>にして保存（または適用）</li>
+                </ol>
+                <h3 class="panelTitle" style="margin-top:12px;">③ 元に戻す（無効化する）</h3>
+                <ul class="bullets">
+                  <li>同じ画面で <b>Custom instructions をオフ</b> にする</li>
+                  <li>または、指示文を消して空にして保存</li>
+                </ul>
+                <p class="hint">UIや名称はMicrosoft側の更新で変わることがあります。</p>
+              </div>
+            </div>
+          </div>
+        </details>
 
         <div class="hr"></div>
 
@@ -100,8 +108,9 @@
         <div class="hr" style="margin-top:14px;"></div>
 
         <div class="row" style="justify-content:space-between;">
-          <button class="btn" id="btnBack">戻る</button>
+          <button class="btn" id="btnBack">ログイン画面へ</button>
           <div class="row">
+            <button class="btn" id="btnResetAllInline" title="入力と結果をリセット">リセット</button>
             <button class="btn" id="btnSaveDraft">下書き保存</button>
             <button class="btn primary" id="btnGenerate">生成</button>
           </div>
@@ -118,7 +127,8 @@
             <p class="hint">下のテキストを Copilot の「カスタム指示」に貼り付けてください。</p>
           </div>
           <div class="row">
-            <button class="btn" id="btnBackToQuiz">質問に戻る</button>
+            <button class="btn" id="btnBackToQuiz">MAINへ戻る</button>
+            <button class="btn" id="btnResetAllFromOut" title="入力と結果をリセット">リセット</button>
           </div>
         </div>
 
@@ -138,21 +148,8 @@
             <a class="btn primary" id="btnOpenCopilot" href="#" target="_blank" rel="noreferrer">Copilotを開く</a>
           </div>
         </div>
-
-        <div class="hr" style="margin-top:14px;"></div>
-
-        <details>
-          <summary class="hint">（任意）結果の保存・共有について</summary>
-          <div class="hint" style="margin-top:8px;">
-            共有PCの場合、ブラウザに保存された下書きが残ることがあります。必要に応じてリセットしてください。
-          </div>
-        </details>
       </div>
     </section>
-
-    <footer class="footer">
-      <span class="hint">© Mind Assist Generator (PoC)</span>
-    </footer>
   </div>
 
   <script src="./questions.js"></script>
@@ -162,9 +159,22 @@
   <!-- ✅ Access Counter (GoatCounter)
        1) https://goatcounter.com でサイトを作成（CODEを取得）
        2) 下の YOURCODE を自分のCODEに置換して commit
-       例）https://kanao223.goatcounter.com/count
+       3) GoatCounter側で「Allow adding visitor counts on your website」をON（表示したい場合）
   -->
   <script data-goatcounter="https://YOURCODE.goatcounter.com/count"
-          async src="//gc.zgo.at/count.js"></script>
+          src="//gc.zgo.at/count.js"></script>
+  <script>
+    (function(){
+      var t=setInterval(function(){
+        if(window.goatcounter && window.goatcounter.visit_count){
+          clearInterval(t);
+          try{
+            window.goatcounter.visit_count({append:'#gcTop', type:'html'});
+            window.goatcounter.visit_count({append:'#gcMain', type:'html'});
+          }catch(e){}
+        }
+      }, 100);
+    })();
+  </script>
 </body>
 </html>

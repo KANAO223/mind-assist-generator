@@ -1,15 +1,15 @@
 // app.js
-// - 利用コードログイン
+// - 利用コードログイン（大文字小文字無視）
 // - 質問レンダリング（全問：その他=自由記述）
 // - ローカル生成（API不使用）
 (function(){
-  const STORAGE_KEY = "MAG_DRAFT_V1";
-  const LOGIN_KEY = "MAG_LOGIN_OK_V1";
+  const STORAGE_KEY = "MAG_DRAFT_V2";
+  const LOGIN_KEY = "MAG_LOGIN_OK_V2";
 
-  // ✅ 利用コード（PoC用）: ここに配布コードを列挙してください
+  // ✅ 利用コード（PoC用）: ここに配布コードを列挙してください（大文字推奨）
   const VALID_CODES = [
     "OXUC"
-  ];
+  ].map(s => String(s).trim().toUpperCase());
 
   const el = (id) => document.getElementById(id);
 
@@ -28,13 +28,14 @@
   const btnBack = el("btnBack");
   const btnSaveDraft = el("btnSaveDraft");
   const btnGenerate = el("btnGenerate");
+  const btnResetAllInline = el("btnResetAllInline");
 
   const outText = el("outText");
   const outMeta = el("outMeta");
   const btnCopy = el("btnCopy");
   const btnOpenCopilot = el("btnOpenCopilot");
   const btnBackToQuiz = el("btnBackToQuiz");
-  const btnResetAll = el("btnResetAll");
+  const btnResetAllFromOut = el("btnResetAllFromOut");
 
   const tabs = Array.from(document.querySelectorAll(".tab"));
 
@@ -43,8 +44,11 @@
 
   function show(elm, on){ elm.classList.toggle("hidden", !on); }
 
+  function normalizeCode(code){
+    return String(code || "").trim().toUpperCase();
+  }
   function isValidCode(code){
-    const c = (code || "").trim();
+    const c = normalizeCode(code);
     if(!c) return false;
     return VALID_CODES.includes(c);
   }
@@ -119,7 +123,7 @@
     other.className = "otherBox hidden";
     other.innerHTML = `
       <label>その他（自由記述）</label>
-      <input type="text" placeholder="例）あなた固有の条件・言い回し・例外ルールなど" />
+      <input type="text" placeholder="あなた固有の条件・言い回し・例外ルールなど" />
       <div class="hint">※「その他」を選んだ場合は必須です（120文字まで推奨）</div>
     `;
     wrap.appendChild(other);
@@ -191,7 +195,7 @@
       if(sel.includes("その他") && !(a.other_text||"").trim()) return false;
       return true;
     }else{
-      const sel = (a.selected||"").trim();
+      const sel = String(a.selected||"").trim();
       if(!sel) return false;
       if(sel === "その他" && !(a.other_text||"").trim()) return false;
       return true;
@@ -230,6 +234,13 @@
     tabs.forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
     renderOutput();
   }
+
+  // 利用コードは常に大文字化
+  accessCode.addEventListener("input", () => {
+    const v = normalizeCode(accessCode.value);
+    // 入力中のカーソル飛びを最小化するため、同じなら何もしない
+    if(accessCode.value !== v) accessCode.value = v;
+  });
 
   // Events
   btnLogin.addEventListener("click", () => {
@@ -294,7 +305,9 @@
   });
 
   tabs.forEach(t => { t.addEventListener("click", () => setMode(t.dataset.mode)); });
-  btnResetAll.addEventListener("click", resetAll);
+
+  btnResetAllInline.addEventListener("click", resetAll);
+  btnResetAllFromOut.addEventListener("click", resetAll);
 
   // Init
   (function boot(){

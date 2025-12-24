@@ -1,6 +1,4 @@
-/* Mind Assist Generator - style (GitHub Pages / static)
-   Inspired by the look-and-feel of copilot-prompt-generator-poc
-*/
+/* Mind Assist Generator - style (GitHub Pages / static) */
 :root{
   --bg:#f6f8ff;
   --card:#ffffff;
@@ -9,8 +7,6 @@
   --line:rgba(15,23,42,.14);
   --accent:#2563eb;
   --danger:#e11d48;
-  --ok:#16a34a;
-  --warn:#d97706;
   --shadow:0 10px 30px rgba(2,6,23,.10);
   --radius:18px;
   --radius2:14px;
@@ -40,6 +36,15 @@ body{
 }
 .hd h1{ margin:0; font-size:18px; }
 .hd p{ margin:4px 0 0; color:var(--muted); font-size:13px; max-width: 64ch; }
+
+.topRight{ display:flex; align-items:center; gap:10px; }
+.counterLine{ display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; }
+.counterLabel{ opacity:.9; }
+.counterValue{
+  font-family: var(--mono);
+  font-weight: 800;
+  color: var(--text);
+}
 
 .card{
   background: rgba(255,255,255,.85);
@@ -79,6 +84,7 @@ body{
   color:var(--muted);
   background: rgba(255,255,255,.6);
 }
+.counterBadge .counterValue{ font-size:12px; }
 
 label{ font-size:12px; color:var(--muted); display:block; margin:0 0 6px; }
 input, select, textarea{
@@ -89,6 +95,11 @@ input, select, textarea{
   background:#fff;
   color:var(--text);
   font-size:13px;
+}
+#accessCode{
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-family: var(--mono);
 }
 textarea{ min-height:180px; font-family:var(--mono); resize: vertical; }
 
@@ -156,4 +167,17 @@ textarea{ min-height:180px; font-family:var(--mono); resize: vertical; }
 .optRow span{ font-size:13px; color: var(--text); }
 .otherBox{ margin-top:8px; }
 
-.footer{ margin-top:16px; display:flex; justify-content:center; }
+.howto{
+  border:1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.65);
+  padding: 10px 12px;
+  margin: 12px 0 0;
+}
+.howto summary{
+  cursor:pointer;
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--text);
+}
+.howtoBody{ margin-top:10px; }

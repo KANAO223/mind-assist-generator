@@ -1,12 +1,13 @@
 # Mind Assist Generator (PoC)
 
-**あなたの判断基準に合わせて、Copilotを情報整理・考察の相棒に最適化します。**
-
-このアプリは **静的サイト** です。**APIは使いません**（外部通信は任意のアクセスカウンターのみ）。
+あなたの判断基準に合わせて、Copilotを情報整理・考察の相棒に最適化します。
 
 ## 利用コード
-- いまの設定：`OXUC`
-- 変更したい場合：`app.js` の `VALID_CODES` を書き換えます。
+- `OXUC`（大文字・小文字は区別しません）
 
 ## GitHub Pages
-Settings → Pages → Deploy from a branch → `main` / `/(root)` で公開できます。
+Settings → Pages → Deploy from a branch → `main` / `/(root)`
+
+## アクセスカウンター（GoatCounter）
+- `index.html` の `YOURCODE` をあなたの GoatCounter の CODE に置換
+- GoatCounter 側の設定で「Allow adding visitor counts on your website」をON（表示したい場合）
