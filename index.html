@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mind Assist Generator</title>
+  <meta name="description" content="あなたの判断基準に合わせて、Copilotを情報整理・考察の相棒に最適化します" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="hd">
+          <h1>Mind Assist Generator</h1>
+          <p>あなたの判断基準に合わせて、Copilotを情報整理・考察の相棒に最適化します</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="badge">PoC</span>
+        <button class="btn" id="btnResetAll" title="入力と結果をリセット">リセット</button>
+      </div>
+    </header>
+
+    <!-- Card: 使い方 -->
+    <section class="card">
+      <div class="bd">
+        <h2 class="cardTitle">使い方</h2>
+        <div class="grid2">
+          <div class="panel">
+            <h3 class="panelTitle">① このツールでやること</h3>
+            <ul class="bullets">
+              <li>質問に答える → あなたの「判断の型」を抽出</li>
+              <li>Copilotの <b>カスタム指示</b> に貼る文章（プロンプト）を生成</li>
+              <li>用途別に <b>General / Judge / Editor / Advisor</b> を切替</li>
+            </ul>
+            <p class="hint">※機密情報・個人情報は入力しないでください。出力は必ず内容確認のうえ利用してください。</p>
+          </div>
+
+          <div class="panel">
+            <h3 class="panelTitle">② Copilotに「カスタム指示」を設定する</h3>
+            <ol class="bullets">
+              <li>Copilot Chat を開く</li>
+              <li>右上の <b>設定</b> を開く</li>
+              <li><b>Personalization（個人用設定）</b> を選ぶ</li>
+              <li><b>Custom instructions（カスタム指示）</b> を開き、生成した文章を貼り付ける</li>
+              <li><b>オン</b>にして保存（または適用）</li>
+            </ol>
+            <h3 class="panelTitle" style="margin-top:12px;">③ 元に戻す（無効化する）</h3>
+            <ul class="bullets">
+              <li>同じ画面で <b>Custom instructions をオフ</b> にする</li>
+              <li>または、指示文を消して空にして保存</li>
+            </ul>
+            <p class="hint">UIや名称はMicrosoft側の更新で変わることがあります。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card: ログイン -->
+    <section class="card" id="cardLogin">
+      <div class="bd">
+        <h2 class="cardTitle">はじめに</h2>
+        <p class="hint">
+          このツールはPoCです。出力（指示文）は最終成果物ではありません。必ず内容をご確認ください。<br/>
+          社内ルールに従って利用し、本件の内容やURL・コードの社外開示は行わないでください。
+        </p>
+
+        <div class="hr"></div>
+
+        <label class="chk">
+          <input type="checkbox" id="agree" />
+          <span>上記に同意します</span>
+        </label>
+
+        <div style="height:10px;"></div>
+
+        <label for="accessCode">利用コード</label>
+        <div class="row">
+          <input id="accessCode" placeholder="例）AB12CD34" autocomplete="off" />
+          <button class="btn primary" id="btnLogin">同意して開始</button>
+        </div>
+        <p class="hint" id="loginMsg"></p>
+      </div>
+    </section>
+
+    <!-- Card: 診断 -->
+    <section class="card hidden" id="cardQuiz">
+      <div class="bd">
+        <div class="row" style="justify-content:space-between; align-items:flex-end;">
+          <div>
+            <h2 class="cardTitle">質問診断</h2>
+            <p class="hint">すべて選択式です。選択肢にない場合は「その他」を選び、自由記述してください。</p>
+          </div>
+          <span class="badge" id="progressBadge">0 / 0</span>
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="quizHost"></div>
+
+        <div class="hr" style="margin-top:14px;"></div>
+
+        <div class="row" style="justify-content:space-between;">
+          <button class="btn" id="btnBack">戻る</button>
+          <div class="row">
+            <button class="btn" id="btnSaveDraft">下書き保存</button>
+            <button class="btn primary" id="btnGenerate">生成</button>
+          </div>
+        </div>
+        <p class="hint" id="quizMsg"></p>
+      </div>
+    </section>
+
+    <!-- Card: 出力 -->
+    <section class="card hidden" id="cardOutput">
+      <div class="bd">
+        <div class="row" style="justify-content:space-between; align-items:flex-end;">
+          <div>
+            <h2 class="cardTitle">Copilot 用：カスタム指示</h2>
+            <p class="hint">下のテキストを Copilot の「カスタム指示」に貼り付けてください。</p>
+          </div>
+          <div class="row">
+            <button class="btn" id="btnBackToQuiz">質問に戻る</button>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="出力モード">
+          <button class="tab active" data-mode="general" role="tab">General</button>
+          <button class="tab" data-mode="judge" role="tab">Judge</button>
+          <button class="tab" data-mode="editor" role="tab">Editor</button>
+          <button class="tab" data-mode="advisor" role="tab">Advisor</button>
+        </div>
+
+        <textarea id="outText" spellcheck="false"></textarea>
+
+        <div class="row" style="justify-content:space-between; margin-top:10px;">
+          <span class="hint" id="outMeta"></span>
+          <div class="row">
+            <button class="btn" id="btnCopy">コピー</button>
+            <a class="btn primary" id="btnOpenCopilot" href="#" target="_blank" rel="noreferrer">Copilotを開く</a>
+          </div>
+        </div>
+
+        <div class="hr" style="margin-top:14px;"></div>
+
+        <details>
+          <summary class="hint">（任意）結果の保存・共有について</summary>
+          <div class="hint" style="margin-top:8px;">
+            共有PCの場合、ブラウザに保存された下書きが残ることがあります。必要に応じてリセットしてください。
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span class="hint">© Mind Assist Generator (PoC)</span>
+    </footer>
+  </div>
+
+  <script src="./questions.js"></script>
+  <script src="./generator.js"></script>
+  <script src="./app.js"></script>
+
+  <!-- ✅ Access Counter (GoatCounter)
+       1) https://goatcounter.com でサイトを作成（CODEを取得）
+       2) 下の YOURCODE を自分のCODEに置換して commit
+       例）https://kanao223.goatcounter.com/count
+  -->
+  <script data-goatcounter="https://YOURCODE.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
