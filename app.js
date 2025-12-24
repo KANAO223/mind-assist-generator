@@ -218,6 +218,8 @@
     // Buttons enable
     btnPrevStep.disabled = currentStep === 0;
     btnNextStep.disabled = currentStep === total-1;
+    // 最終ステップでは「次へ」を非表示
+    btnNextStep.style.display = (currentStep === total-1) ? "none" : "";
 
     // dots status
     Array.from(stepDots.querySelectorAll(".dot")).forEach((d, idx)=>{
@@ -487,10 +489,14 @@
     renderStep();
   btnApply.addEventListener("click", () => {
     renderOutput();
+    // 念のため表示状態も確実に更新
+    if(applyMsg) applyMsg.textContent = "反映済み";
+    if(btnApply) btnApply.disabled = true;
+    dirtyOutput = false;
     showToast("反映しました");
   });
 
-  });
+});
 
   btnCopy.addEventListener("click", async () => {
     if(dirtyOutput){

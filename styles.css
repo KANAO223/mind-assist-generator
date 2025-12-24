@@ -340,3 +340,13 @@ textarea{ min-height:180px; font-family:var(--mono); resize: vertical; }
   letter-spacing: 2px;
   user-select: none;
 }
+
+
+/* Output prompt textarea (very light pale blue to indicate "成果物") */
+#outText{
+  background: rgba(56, 189, 248, 0.10); /* very light aqua */
+  border-color: rgba(56, 189, 248, 0.22);
+}
+#outText:focus{
+  border-color: rgba(56, 189, 248, 0.35);
+}
