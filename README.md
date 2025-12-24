@@ -37,3 +37,10 @@ GoatCounter のサイト設定で **Allow adding visitor counts on your website*
 ### 4) 反映確認
 公開サイトをリロードすると、TOP（ヘッダー）と質問画面に数字が出ます。
 「—」のままなら、(a) CODE の置換漏れ、(b) 設定がOFF、(c) ブラウザキャッシュ を確認してください。
+
+
+## 「Views for this page: 0 / stats by GoatCounter」と大きく出てしまう場合
+それは GoatCounter の `visit_count()` が **ウィジェット（枠付き表示）** を挿入している状態です。
+
+このPoCでは **数字だけを小さく表示**したいので、
+`visit_count()` は使わず、GoatCounterの **JSON API（.json）** を取得して `アクセス` の横に数字だけ入れる方式にしています。

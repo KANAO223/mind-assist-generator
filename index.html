@@ -179,21 +179,44 @@
   <script src="./app.js"></script>
 
   <!-- ✅ Access Counter (GoatCounter)
-       1) https://goatcounter.com でサイトを作成（CODEを取得）
-       2) 下の YOURCODE を自分のCODEに置換して commit
-       3) GoatCounter側で「Allow adding visitor counts on your website」をON（表示したい場合）
+       1) GoatCounterで SITE CODE = mindassist を作成済み
+       2) GoatCounter側の設定で「Webサイト上で訪問数を表示するのを許可」をON
+       3) 下の count.js が読み込まれると、JSON APIで表示数を取得して数字だけを表示します
   -->
   <script data-goatcounter="https://mindassist.goatcounter.com/count"
-          src="//gc.zgo.at/count.js"></script>
+          async src="//gc.zgo.at/count.js"></script>
   <script>
     (function(){
-      var t=setInterval(function(){
-        if(window.goatcounter && window.goatcounter.visit_count){
-          clearInterval(t);
-          try{
-            window.goatcounter.visit_count({append:'#gcTop', type:'html'});
-            window.goatcounter.visit_count({append:'#gcMain', type:'html'});
-          }catch(e){}
+      // 数字だけ表示（"Views for this page" 等の大きいウィジェットは使いません）
+      async function fillCounts(){
+        try{
+          // GoatCounterのUIと一致するパス（推奨）
+          var path = (window.goatcounter && window.goatcounter.get_data) ? window.goatcounter.get_data()['p'] : location.pathname;
+          var url = "https://mindassist.goatcounter.com/counter/" + encodeURIComponent(path) + ".json";
+          var res = await fetch(url, {cache: "no-store"});
+          if(!res.ok) return;
+          var data = await res.json();
+          var count = (data && data.count != null) ? String(data.count) : "0";
+          var t = document.querySelector("#gcTop");
+          var m = document.querySelector("#gcMain");
+          if(t) t.textContent = count;
+          if(m) m.textContent = count;
+        }catch(e){
+          // 失敗しても黙って "—" のままにする
+        }
+      }
+
+      // count.jsが読み込まれるまで少し待ってから取得
+      var tries = 0;
+      var timer = setInterval(function(){
+        tries++;
+        if(window.goatcounter && window.goatcounter.get_data){
+          clearInterval(timer);
+          fillCounts();
+        }
+        if(tries > 80){ // 8秒程度
+          clearInterval(timer);
+          fillCounts();
         }
       }, 100);
     })();
