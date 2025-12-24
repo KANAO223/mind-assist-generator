@@ -303,3 +303,40 @@ textarea{ min-height:180px; font-family:var(--mono); resize: vertical; }
 .switchRow input{ width:18px; height:18px; margin-top:2px; }
 .switchText b{ display:block; font-size:13px; }
 .switchText span{ display:block; font-size:12px; color: var(--muted); margin-top:2px; }
+
+
+/* Step coloring (4問ごとのステップ) */
+.stepRange{ font-weight: 900; }
+.stepTheme0{ --stepBg: rgba(37,99,235,.16); --stepBd: rgba(37,99,235,.35); }
+.stepTheme1{ --stepBg: rgba(147,51,234,.16); --stepBd: rgba(147,51,234,.35); }
+.stepTheme2{ --stepBg: rgba(14,116,144,.16); --stepBd: rgba(14,116,144,.35); }
+.stepTheme3{ --stepBg: rgba(234,88,12,.16); --stepBd: rgba(234,88,12,.35); }
+.stepTheme4{ --stepBg: rgba(5,150,105,.16); --stepBd: rgba(5,150,105,.35); }
+.stepTheme5{ --stepBg: rgba(220,38,38,.14); --stepBd: rgba(220,38,38,.30); }
+
+.dot.active{
+  border-color: var(--stepBd, rgba(37,99,235,.35));
+  background: var(--stepBg, rgba(37,99,235,.16));
+}
+.badge.stepRange{
+  border-color: var(--stepBd, rgba(37,99,235,.35));
+  background: var(--stepBg, rgba(37,99,235,.16));
+}
+
+/* Mode selection box */
+.modeBox{ border-color: var(--stepBd, var(--line)); }
+
+/* Final tuning spacing (行間/余白を詰める) */
+.prefsGrid{ gap: 6px !important; }
+.switchRow{ padding: 8px 10px !important; gap: 8px !important; }
+.switchText span{ margin-top: 1px !important; }
+
+/* Spacer + arrow */
+.downArrow{
+  margin: 16px 0 10px;
+  text-align: center;
+  font-weight: 900;
+  color: var(--muted);
+  letter-spacing: 2px;
+  user-select: none;
+}

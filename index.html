@@ -64,7 +64,10 @@
         </div>
 
         <div class="stepbar">
-          <div class="stepTitle" id="stepTitle">ステップ 1 / 6</div>
+          <div class="row" style="gap:10px; align-items:center;">
+            <div class="stepTitle" id="stepTitle">ステップ 1 / 6</div>
+            <span class="badge stepRange" id="stepRangeBadge">Q1–4</span>
+          </div>
           <div class="stepDots" id="stepDots" aria-hidden="true"></div>
         </div>
 
@@ -141,18 +144,18 @@
           </div>
         </div>
 
-        <div class="panel" style="margin-top:10px;">
-          <h3 class="panelTitle" style="margin-bottom:6px;">モードの説明</h3>
-          <div class="hint" style="margin:0;">
+        <div class="panel modeBox" style="margin-top:10px;">
+          <h3 class="panelTitle" style="margin-bottom:6px;">モード選択</h3>
+          <div class="hint" style="margin:0 0 10px;">
             <b>General</b>＝整理と結論のバランス / <b>Judge</b>＝審査（リスク・反証） / <b>Editor</b>＝編集（構成・表現） / <b>Advisor</b>＝参謀（次の一手）
           </div>
-        </div>
 
-        <div class="tabs" role="tablist" aria-label="出力モード">
-          <button class="tab active" data-mode="general" role="tab">General</button>
-          <button class="tab" data-mode="judge" role="tab">Judge</button>
-          <button class="tab" data-mode="editor" role="tab">Editor</button>
-          <button class="tab" data-mode="advisor" role="tab">Advisor</button>
+          <div class="tabs" role="tablist" aria-label="出力モード">
+            <button class="tab active" data-mode="general" role="tab">General</button>
+            <button class="tab" data-mode="judge" role="tab">Judge</button>
+            <button class="tab" data-mode="editor" role="tab">Editor</button>
+            <button class="tab" data-mode="advisor" role="tab">Advisor</button>
+          </div>
         </div>
 
         <div class="panel" style="margin-top:10px;">
@@ -187,15 +190,20 @@
               </div>
             </label>
           </div>
-          <p class="hint" style="margin-top:10px;">※ここで選んだ内容は、生成される「カスタム指示」に反映されます。</p>
+          <p class="hint" style="margin-top:8px;">※ここで選んだ内容は、生成される「カスタム指示」に反映されます。</p>
+          <div class="row" style="justify-content:space-between; margin-top:10px;">
+            <span class="hint" id="applyMsg">変更は未反映です</span>
+            <button class="btn primary" id="btnApply" disabled>最終反映</button>
+          </div>
         </div>
 
+        <div class="downArrow" aria-hidden="true">⇩</div>
         <textarea id="outText" spellcheck="false"></textarea>
 
         <div class="row" style="justify-content:space-between; margin-top:10px;">
           <span class="hint" id="outMeta"></span>
           <div class="row">
-            <button class="btn" id="btnCopy">コピー</button>
+            <button class="btn" id="btnCopy">カスタム内容をコピー</button>
             <a class="btn primary" id="btnOpenCopilot" href="#" target="_blank" rel="noreferrer">Copilotを開く</a>
           </div>
         </div>

@@ -37,6 +37,7 @@
   const btnPrevStep = el("btnPrevStep");
   const btnNextStep = el("btnNextStep");
   const stepTitle = el("stepTitle");
+  const stepRangeBadge = el("stepRangeBadge");
   const stepDots = el("stepDots");
   const missingBox = el("missingBox");
   const missingList = el("missingList");
@@ -50,6 +51,8 @@
   const btnBackToQuiz = el("btnBackToQuiz");
   const btnResetAllFromOut = el("btnResetAllFromOut");
   const copiedPanel = el("copiedPanel");
+  const btnApply = el("btnApply");
+  const applyMsg = el("applyMsg");
   const tabs = Array.from(document.querySelectorAll(".tab"));
 
   // Prefs
@@ -64,6 +67,7 @@
   let currentMode = "general";
   let currentStep = 0;
   let profile = {}; // answers map + _prefs
+  let dirtyOutput = false;
 
   function show(elm, on){ elm.classList.toggle("hidden", !on); }
 
@@ -203,6 +207,14 @@
     const {start, end} = stepRange(currentStep);
 
     stepTitle.textContent = `ステップ ${currentStep+1} / ${total}`;
+    if(stepRangeBadge){
+      const qStart = start + 1;
+      const qEnd = end;
+      stepRangeBadge.textContent = `Q${qStart}–${qEnd}`;
+    }
+    // step theme (color)
+    for(let i=0;i<6;i++){ cardQuiz.classList.remove(`stepTheme${i}`); }
+    cardQuiz.classList.add(`stepTheme${currentStep}`);
     // Buttons enable
     btnPrevStep.disabled = currentStep === 0;
     btnNextStep.disabled = currentStep === total-1;
@@ -354,10 +366,21 @@
     return true;
   }
 
+
+  function markDirty(){
+    dirtyOutput = true;
+    if(btnApply) btnApply.disabled = false;
+    if(applyMsg) applyMsg.textContent = "変更は未反映です";
+  }
+  function setClean(){
+    dirtyOutput = false;
+    if(btnApply) btnApply.disabled = true;
+    if(applyMsg) applyMsg.textContent = "反映済み";
+  }
   function setMode(mode){
     currentMode = mode;
     tabs.forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
-    renderOutput();
+    markDirty();
   }
 
   function capturePrefs(){
@@ -375,6 +398,7 @@
     const txt = window.MAG_generateInstructions(profile, currentMode);
     outText.value = txt;
     outMeta.textContent = `文字数：${txt.length}`;
+    setClean();
   }
 
   function sampleFill(){
@@ -461,14 +485,22 @@
     show(cardQuiz, true);
     window.scrollTo({top:0, behavior:"smooth"});
     renderStep();
+  btnApply.addEventListener("click", () => {
+    renderOutput();
+    showToast("反映しました");
+  });
+
   });
 
   btnCopy.addEventListener("click", async () => {
+    if(dirtyOutput){
+      renderOutput();
+    }
     try{
       await navigator.clipboard.writeText(outText.value || "");
       btnCopy.textContent = "コピーしました";
       copiedPanel.style.display = "";
-      setTimeout(() => btnCopy.textContent = "コピー", 900);
+      setTimeout(() => btnCopy.textContent = "カスタム内容をコピー", 1000);
     }catch(e){
       alert("コピーに失敗しました。手動で選択してコピーしてください。");
     }
@@ -477,7 +509,7 @@
   tabs.forEach(t => t.addEventListener("click", ()=> setMode(t.dataset.mode)));
 
   [prefSuperBrief, prefStrictRisk, prefConclusionFirst, prefAskBack].forEach(chk=>{
-    chk.addEventListener("change", ()=>{ renderOutput(); showToast("最終調整を反映しました"); });
+    chk.addEventListener("change", ()=>{ capturePrefs(); markDirty(); showToast("最終調整を更新しました（未反映）"); });
   });
 
   // --- Boot ---
